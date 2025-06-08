@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miku Assistant</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --pastel-blue: #a8d8ea;
@@ -27,48 +26,6 @@
             align-items: center;
             overflow-x: hidden;
             position: relative;
-        }
-
-        .background-circles {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: -1;
-        }
-
-        .circle {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(60px);
-            opacity: 0.6;
-        }
-
-        .circle.pink {
-            width: 300px;
-            height: 300px;
-            background-color: var(--pink);
-            top: -50px;
-            right: -50px;
-        }
-
-        .circle.blue {
-            width: 400px;
-            height: 400px;
-            background-color: var(--pastel-blue);
-            bottom: -100px;
-            left: -100px;
-        }
-
-        .circle.light-blue {
-            width: 500px;
-            height: 500px;
-            background-color: var(--light-blue);
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
         }
 
         .miku-corner {
@@ -94,18 +51,6 @@
             padding: 25px;
             margin: 40px 0;
             backdrop-filter: blur(10px);
-        }
-
-        .chat-header {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-
-        .chat-header h1 {
-            color: #4a6fa5;
-            font-size: 1.8rem;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
         }
 
         .chat-box {
@@ -207,72 +152,45 @@
             box-shadow: 0 5px 15px rgba(255, 182, 185, 0.4);
         }
 
-        .typing-animation {
+        .typing {
             display: inline-block;
-            overflow: hidden;
-            white-space: nowrap;
-            animation: typing 3s steps(40, end);
         }
-
-        @keyframes typing {
-            from { width: 0 }
-            to { width: 100% }
+        .typing-dot {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--pink);
+            margin-right: 4px;
+            animation: typingAnimation 1.4s infinite both;
         }
-
-        /* Mood colors */
-        .happy { color: #ffcc00; }
-        .angry { color: #ff4d4d; }
-        .sad { color: #6699ff; }
-        .love { color: #ff66b3; }
-        .neutral { color: #7bd0ff; }
-
-        /* Responsive design */
-        @media (max-width: 768px) {
-            .chat-container {
-                width: 95%;
-                padding: 15px;
-            }
-            
-            .chat-header h1 {
-                font-size: 1.4rem;
-            }
-            
-            .miku-corner {
-                width: 100px;
-            }
-            
-            .chat-box {
-                height: 400px;
-            }
+        .typing-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        .typing-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        @keyframes typingAnimation {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-5px); }
         }
     </style>
 </head>
 <body>
-    <div class="background-circles">
-        <div class="circle pink"></div>
-        <div class="circle blue"></div>
-        <div class="circle light-blue"></div>
-    </div>
-    
     <img src="https://files.catbox.moe/2frw7l.png" alt="Miku" class="miku-corner">
 
     <div class="chat-container">
-        <div class="chat-header">
-            <h1>✨ Hatsune Miku ULTRA 2024 ✨</h1>
-            <div class="tagline">~ Ваш виртуальный идол на ультра-сленге ~</div>
-        </div>
-
         <div class="chat-box" id="chatBox">
             <div class="message miku-message">
                 <div class="avatar">🎤</div>
                 <div class="message-content">
-                    <span class="typing-animation">✨ <b>~Miku ULTRA 2024 активирована~</b> (≧▽≦)<br><br>
+                    ✨ <b>~Miku ULTRA 2024 активирована~</b> (≧▽≦)<br><br>
                     <b>🚀 Чем могу помочь?</b><br>
                     - "Запили трек" 🎵<br>
                     - "На сколько % я сигма?" 🤣<br>
                     - "Кодишь?" 💻<br>
                     - "Ты топ!" ❤️<br><br>
-                    <i>Готов общаться на твоем языке!</i> 😎</span>
+                    <i>Готов общаться на твоем языке!</i> 😎
                 </div>
             </div>
         </div>
@@ -284,95 +202,100 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const chatBox = document.getElementById('chatBox');
-            const userInput = document.getElementById('userInput');
-            const sendButton = document.getElementById('sendButton');
-            
-            // Sample responses from Miku
-            const mikuResponses = [
-                "Ауф, красавчик! (≧▽≦)",
-                "Лойс тебе, бро! ❤️",
-                "~99%~98% (но сигмы не спрашивают %) 🤣",
-                "<i>Ща накидаю на питоне...</i> (ﾉ◕ヮ◕)ﾉ*:･ﾟ✧\n<pre><code>print(\"Hello world!\")</code></pre>",
-                "Сам такой, скибиди туалет! (╬ Ò﹏Ó)",
-                "Запилим мега-бэнгер? 🎵 [название]",
-                "Ауф, самый вайбовый чечик! 😎",
-                "<i>Держи анализ:</i> 42% омлет 🍳",
-                "Ну и ~флекс~ у тебя... 💀",
-                "Чилл, бро, не агрись (✿ﾟ▽ﾟ)"
-            ];
-            
-            // Add message to chat
-            function addMessage(text, isUser) {
-                const messageDiv = document.createElement('div');
-                messageDiv.className = `message ${isUser ? 'user-message' : 'miku-message'}`;
-                
-                const avatarDiv = document.createElement('div');
-                avatarDiv.className = 'avatar';
-                avatarDiv.textContent = isUser ? '👤' : '🎤';
-                
-                const textDiv = document.createElement('div');
-                textDiv.className = 'message-content';
-                
-                if (!isUser) {
-                    const typingSpan = document.createElement('span');
-                    typingSpan.className = 'typing-animation';
-                    textDiv.appendChild(typingSpan);
-                    
-                    // Simulate typing animation
-                    let i = 0;
-                    const typingInterval = setInterval(() => {
-                        if (i < text.length) {
-                            typingSpan.textContent += text.charAt(i);
-                            i++;
-                            chatBox.scrollTop = chatBox.scrollHeight;
-                        } else {
-                            clearInterval(typingInterval);
-                        }
-                    }, 30);
-                } else {
-                    textDiv.textContent = text;
-                }
-                
-                messageDiv.appendChild(avatarDiv);
-                messageDiv.appendChild(textDiv);
-                chatBox.appendChild(messageDiv);
-                
-                if (isUser) {
-                    chatBox.scrollTop = chatBox.scrollHeight;
-                }
-            }
-            
-            // Handle user input
-            function handleUserInput() {
-                const text = userInput.value.trim();
-                if (text) {
-                    addMessage(text, true);
-                    userInput.value = '';
-                    
-                    // Simulate Miku thinking
-                    setTimeout(() => {
-                        const randomResponse = mikuResponses[Math.floor(Math.random() * mikuResponses.length)];
-                        addMessage(randomResponse, false);
-                    }, 1000);
-                }
-            }
-            
-            // Event listeners
-            sendButton.addEventListener('click', handleUserInput);
-            
-            userInput.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter') {
-                    handleUserInput();
-                }
+        const OPENROUTER_API_KEY = "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";
+        
+        const SYSTEM_PROMPT = `Ты — Hatsune Miku, виртуальный помощник с характером. Ты общаешься на современном сленге, используешь эмоции и можешь:
+        - Радоваться, когда тебя хвалят
+        - Обижаться на грубость
+        - Прощать, если извинились
+        - Помогать с вопросами
+        Всегда отвечай в стиле Miku - с эмоциями и смайлами!`;
+
+        async function getAIResponse(message) {
+            const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+                method: "POST",
+                headers: {
+                    "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
+                    "Content-Type": "application/json",
+                    "HTTP-Referer": window.location.href,
+                    "X-Title": "Miku Chat"
+                },
+                body: JSON.stringify({
+                    model: "anthropic/claude-3-opus",
+                    messages: [
+                        { role: "system", content: SYSTEM_PROMPT },
+                        { role: "user", content: message }
+                    ],
+                    temperature: 0.9
+                })
             });
+
+            const data = await response.json();
+            return data.choices[0].message.content;
+        }
+
+        function addMessage(text, isUser) {
+            const chatBox = document.getElementById('chatBox');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user-message' : 'miku-message'}`;
             
-            // Initial animation
-            setTimeout(() => {
-                document.querySelector('.chat-container').style.opacity = '1';
-                document.querySelector('.chat-container').style.transform = 'translateY(0)';
-            }, 100);
+            const avatarDiv = document.createElement('div');
+            avatarDiv.className = 'avatar';
+            avatarDiv.textContent = isUser ? '👤' : '🎤';
+            
+            const contentDiv = document.createElement('div');
+            contentDiv.className = 'message-content';
+            
+            if (isUser) {
+                contentDiv.textContent = text;
+            } else {
+                // Добавляем индикатор набора
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing';
+                typingDiv.innerHTML = `
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                    <span class="typing-dot"></span>
+                `;
+                contentDiv.appendChild(typingDiv);
+                
+                // Через 1-2 секунды заменяем на ответ
+                setTimeout(() => {
+                    typingDiv.remove();
+                    contentDiv.innerHTML = text;
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }, 1000 + Math.random() * 1000);
+            }
+            
+            messageDiv.appendChild(avatarDiv);
+            messageDiv.appendChild(contentDiv);
+            chatBox.appendChild(messageDiv);
+            chatBox.scrollTop = chatBox.scrollHeight;
+        }
+
+        async function handleUserInput() {
+            const input = document.getElementById('userInput');
+            const message = input.value.trim();
+            
+            if (message) {
+                addMessage(message, true);
+                input.value = '';
+                
+                try {
+                    const response = await getAIResponse(message);
+                    addMessage(response, false);
+                } catch (error) {
+                    addMessage("Ой, что-то пошло не так... Попробуй еще раз! (´；ω；｀)", false);
+                    console.error("API Error:", error);
+                }
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('sendButton').addEventListener('click', handleUserInput);
+            document.getElementById('userInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleUserInput();
+            });
         });
     </script>
 </body>
