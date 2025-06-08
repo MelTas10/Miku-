@@ -4,31 +4,66 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Miku ULTRA 2024</title>
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --primary: #a0e7ff;
             --secondary: #ffb6e6;
             --accent: #7bd0ff;
-            --bg: #f0f9ff;
+            --bg: rgba(240, 249, 255, 0.85);
             --text: #2d3748;
         }
 
-        body {
-            font-family: 'Arial', sans-serif;
-            background: var(--bg);
-            color: var(--text);
+        * {
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Neue', cursive;
+            color: var(--text);
             min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .video-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            z-index: -2;
+            opacity: 0.7;
+        }
+
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.3);
+            z-index: -1;
         }
 
         .chat-container {
             max-width: 800px;
-            margin: 0 auto;
-            background: white;
+            margin: 20px auto;
+            background: var(--bg);
             border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
             overflow: hidden;
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            animation: fadeIn 0.8s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .chat-header {
@@ -36,46 +71,127 @@
             padding: 20px;
             text-align: center;
             color: white;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .chat-header::before {
+            content: "";
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            right: -10px;
+            bottom: -10px;
+            background: linear-gradient(45deg, 
+                rgba(255,255,255,0.1) 0%, 
+                rgba(255,255,255,0.3) 50%, 
+                rgba(255,255,255,0.1) 100%);
+            z-index: 0;
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .chat-header h1 {
+            font-size: 1.8rem;
+            margin-bottom: 5px;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
+        }
+
+        .chat-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
         }
 
         .chat-messages {
             height: 500px;
             overflow-y: auto;
             padding: 20px;
-            background: rgba(255, 255, 255, 0.8);
+            scroll-behavior: smooth;
         }
 
         .message {
             margin-bottom: 15px;
-            padding: 10px 15px;
-            border-radius: 15px;
             max-width: 80%;
+            animation: messageIn 0.4s ease-out;
+            transform-origin: bottom;
+        }
+
+        @keyframes messageIn {
+            from { opacity: 0; transform: scale(0.9) translateY(10px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
 
         .user-message {
-            background: var(--secondary);
             margin-left: auto;
+            background: var(--secondary);
             color: white;
-            border-bottom-right-radius: 5px;
+            border-radius: 15px 15px 0 15px;
+            padding: 12px 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
         }
 
         .miku-message {
             background: var(--primary);
-            border-bottom-left-radius: 5px;
+            border-radius: 15px 15px 15px 0;
+            padding: 12px 15px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--primary);
+            border-radius: 15px;
+        }
+
+        .typing-dot {
+            width: 8px;
+            height: 8px;
+            background: var(--text);
+            border-radius: 50%;
+            margin: 0 2px;
+            animation: typing 1.4s infinite both;
+        }
+
+        .typing-dot:nth-child(1) { animation-delay: 0s; }
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.6; }
+            30% { transform: translateY(-5px); opacity: 1; }
         }
 
         .input-area {
             display: flex;
             padding: 15px;
             background: white;
+            border-top: 1px solid rgba(0,0,0,0.1);
         }
 
         #userInput {
             flex: 1;
-            padding: 12px 15px;
+            padding: 12px 20px;
             border: 2px solid var(--primary);
-            border-radius: 25px;
+            border-radius: 30px;
             font-size: 16px;
+            outline: none;
+            transition: all 0.3s;
+            background: rgba(255,255,255,0.9);
+        }
+
+        #userInput:focus {
+            border-color: var(--accent);
+            box-shadow: 0 0 0 3px rgba(123, 208, 255, 0.3);
         }
 
         #sendButton {
@@ -84,9 +200,17 @@
             background: var(--accent);
             color: white;
             border: none;
-            border-radius: 25px;
+            border-radius: 30px;
             cursor: pointer;
             font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+
+        #sendButton:hover {
+            background: #6ac0ff;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(123, 208, 255, 0.4);
         }
 
         .miku-corner {
@@ -95,14 +219,85 @@
             right: 20px;
             width: 150px;
             transition: all 0.3s;
+            filter: drop-shadow(0 0 10px rgba(0,0,0,0.3));
+            z-index: 100;
         }
 
         .miku-corner:hover {
             transform: scale(1.1) rotate(5deg);
         }
+
+        /* Анимация пузырьков */
+        .bubbles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            overflow: hidden;
+        }
+
+        .bubble {
+            position: absolute;
+            bottom: -100px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            animation: float 15s infinite ease-in;
+            opacity: 0;
+        }
+
+        @keyframes float {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            50% {
+                opacity: 0.3;
+            }
+            100% {
+                transform: translateY(-1000px) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* Адаптивность */
+        @media (max-width: 768px) {
+            .chat-container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .chat-header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .chat-messages {
+                height: 400px;
+                padding: 15px;
+            }
+            
+            .miku-corner {
+                width: 100px;
+            }
+            
+            #userInput {
+                padding: 10px 15px;
+            }
+            
+            #sendButton {
+                padding: 0 20px;
+            }
+        }
     </style>
 </head>
 <body>
+    <video autoplay muted loop class="video-background">
+        <source src="https://files.catbox.moe/dsl7a5.mp4" type="video/mp4">
+    </video>
+    <div class="overlay"></div>
+    <div class="bubbles" id="bubbles"></div>
+    
     <img src="https://files.catbox.moe/2frw7l.png" alt="Miku" class="miku-corner">
 
     <div class="chat-container">
@@ -130,7 +325,9 @@
     </div>
 
     <script>
+        // Конфигурация
         const OPENROUTER_API_KEY = "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";
+        const MODEL = "anthropic/claude-3-opus";
         
         // Словарь сленга и эмоций
         const SLAVG = {
@@ -151,11 +348,38 @@
             "love": ["❤️", "😳", "💘", "💞", "💗"]
         };
 
+        // Создаем пузырьки для фона
+        function createBubbles() {
+            const bubblesContainer = document.getElementById('bubbles');
+            for (let i = 0; i < 20; i++) {
+                const bubble = document.createElement('div');
+                bubble.classList.add('bubble');
+                
+                const size = Math.random() * 100 + 50;
+                const posX = Math.random() * 100;
+                const delay = Math.random() * 15;
+                const duration = Math.random() * 10 + 10;
+                
+                bubble.style.width = `${size}px`;
+                bubble.style.height = `${size}px`;
+                bubble.style.left = `${posX}%`;
+                bubble.style.animationDelay = `${delay}s`;
+                bubble.style.animationDuration = `${duration}s`;
+                
+                bubblesContainer.appendChild(bubble);
+            }
+        }
+
+        // Вспомогательные функции
+        function randomChoice(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
         // Генерация системного промпта
         function generateSystemPrompt() {
             const randomWords = [];
             for (const category in SLAVG) {
-                randomWords.push(SLAVG[category][Math.floor(Math.random() * SLAVG[category].length)]);
+                randomWords.push(randomChoice(SLAVG[category]));
             }
             
             return `🎤 <b>Ты — Hatsune Miku ULTRA 2024</b> ${randomChoice(EMOJI_PACK.happy)}
@@ -172,10 +396,6 @@
 - На "% гей": "[1-100]% (но это кринжово неточно) ${randomChoice(EMOJI_PACK.rofl)}"
 - На оскорбления: "Сам такой, ${randomChoice(['скибиди туалет', 'гигачад-неудачник', 'омлет без яиц'])}! ${randomChoice(EMOJI_PACK.angry)}"
 - На комплименты: "Лойс тебе, бро! ${randomChoice(EMOJI_PACK.love)}"`;
-        }
-
-        function randomChoice(array) {
-            return array[Math.floor(Math.random() * array.length)];
         }
 
         // Определение типа сообщения
@@ -244,7 +464,7 @@
                         'X-Title': 'Miku ULTRA'
                     },
                     body: JSON.stringify({
-                        model: "anthropic/claude-3-opus",
+                        model: MODEL,
                         messages: [
                             { role: "system", content: generateSystemPrompt() },
                             { role: "user", content: message }
@@ -270,7 +490,28 @@
             const chatMessages = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'miku-message'}`;
-            messageDiv.innerHTML = text;
+            
+            if (isUser) {
+                messageDiv.textContent = text;
+            } else {
+                // Добавляем индикатор набора
+                const typingDiv = document.createElement('div');
+                typingDiv.className = 'typing-indicator';
+                typingDiv.innerHTML = `
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                `;
+                messageDiv.appendChild(typingDiv);
+                
+                // Через 1-2 секунды заменяем на ответ
+                setTimeout(() => {
+                    typingDiv.remove();
+                    messageDiv.innerHTML = text;
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000 + Math.random() * 1000);
+            }
+            
             chatMessages.appendChild(messageDiv);
             chatMessages.scrollTop = chatMessages.scrollHeight;
         }
@@ -291,6 +532,8 @@
 
         // Инициализация
         document.addEventListener('DOMContentLoaded', () => {
+            createBubbles();
+            
             document.getElementById('sendButton').addEventListener('click', handleSendMessage);
             document.getElementById('userInput').addEventListener('keypress', (e) => {
                 if (e.key === 'Enter') handleSendMessage();
