@@ -1,46 +1,48 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Miku Assistant</title>
+    <title>Miku ULTRA 2024</title>
     <style>
         :root {
-            --pastel-blue: #a8d8ea;
-            --light-blue: #caf0f8;
-            --white: #f8f9fa;
-            --pink: #ffb6b9;
-            --text-color: #3a3a3a;
+            --primary: #a0e7ff;
+            --secondary: #ffb6e6;
+            --accent: #7bd0ff;
+            --bg: #f0f9ff;
+            --text: #2d3748;
         }
 
         body {
+            font-family: 'Arial', sans-serif;
+            background: var(--bg);
+            color: var(--text);
             margin: 0;
-            padding: 0;
-            font-family: Arial, sans-serif;
-            background-color: var(--light-blue);
-            color: var(--text-color);
+            padding: 20px;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
         }
 
         .chat-container {
-            width: 90%;
             max-width: 800px;
-            background-color: white;
+            margin: 0 auto;
+            background: white;
             border-radius: 20px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            padding: 25px;
+            overflow: hidden;
         }
 
-        .chat-box {
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            padding: 20px;
+            text-align: center;
+            color: white;
+        }
+
+        .chat-messages {
             height: 500px;
             overflow-y: auto;
-            padding: 15px;
-            margin-bottom: 20px;
-            border: 2px solid var(--pastel-blue);
-            border-radius: 15px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.8);
         }
 
         .message {
@@ -51,51 +53,78 @@
         }
 
         .user-message {
-            background-color: var(--pastel-blue);
+            background: var(--secondary);
             margin-left: auto;
+            color: white;
             border-bottom-right-radius: 5px;
         }
 
         .miku-message {
-            background-color: var(--pink);
+            background: var(--primary);
             border-bottom-left-radius: 5px;
         }
 
-        .input-container {
+        .input-area {
             display: flex;
-            gap: 10px;
+            padding: 15px;
+            background: white;
         }
 
         #userInput {
             flex: 1;
-            padding: 15px;
-            border: 2px solid var(--pastel-blue);
-            border-radius: 50px;
+            padding: 12px 15px;
+            border: 2px solid var(--primary);
+            border-radius: 25px;
             font-size: 16px;
         }
 
         #sendButton {
-            padding: 15px 25px;
-            background-color: var(--pink);
+            margin-left: 10px;
+            padding: 0 25px;
+            background: var(--accent);
             color: white;
             border: none;
-            border-radius: 50px;
+            border-radius: 25px;
             cursor: pointer;
             font-size: 16px;
+        }
+
+        .miku-corner {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 150px;
+            transition: all 0.3s;
+        }
+
+        .miku-corner:hover {
+            transform: scale(1.1) rotate(5deg);
         }
     </style>
 </head>
 <body>
+    <img src="https://files.catbox.moe/2frw7l.png" alt="Miku" class="miku-corner">
+
     <div class="chat-container">
-        <div class="chat-box" id="chatBox">
+        <div class="chat-header">
+            <h1>✨ Hatsune Miku ULTRA 2024 ✨</h1>
+            <p>~ Ваш виртуальный идол на ультра-сленге ~</p>
+        </div>
+        
+        <div class="chat-messages" id="chatMessages">
             <div class="message miku-message">
                 ✨ <b>~Miku ULTRA 2024 активирована~</b> (≧▽≦)<br><br>
-                <b>🚀 Чем могу помочь?</b>
+                <b>🚀 Чем могу помочь?</b><br>
+                - "Запили трек" 🎵<br>
+                - "На сколько % я сигма?" 🤣<br>
+                - "Кодишь?" 💻<br>
+                - "Ты топ!" ❤️<br><br>
+                <i>Готов общаться на твоем языке!</i> 😎
             </div>
         </div>
         
-        <div class="input-container">
-            <input type="text" id="userInput" placeholder="Напиши что-нибудь..." autocomplete="off">
+        <div class="input-area">
+            <input type="text" id="userInput" placeholder="Напиши что-нибудь крутое..." autocomplete="off">
             <button id="sendButton">Отправить</button>
         </div>
     </div>
@@ -103,28 +132,124 @@
     <script>
         const OPENROUTER_API_KEY = "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";
         
-        // Прокси-сервер для обхода CORS
-        const PROXY_URL = 'https://cors-anywhere.herokuapp.com/';
-        const API_URL = 'https://openrouter.ai/api/v1/chat/completions';
+        // Словарь сленга и эмоций
+        const SLAVG = {
+            "оскорбления": ["хуйня", "калл", "говно", "дурак", "кринж", "флоп", "лузер", "скибиди"],
+            "комплименты": ["топ", "няшно", "сасный", "ауф", "бэнгер", "вайб", "чилл", "гоу"],
+            "вопросы": ["на сколько", "% гей", "гей ли", "рил", "че думаешь"],
+            "музыка": ["спой", "трек", "песня", "бит", "запили"],
+            "романтика": ["краш", "вкрашиться", "шипперить", "тюбик", "буллить"],
+            "геймерские": ["гг", "нёрф", "бафф", "крафт", "скилл"],
+            "новые": ["ризек", "скибиди", "гигачад", "сигма", "омлет"]
+        };
 
-        const SYSTEM_PROMPT = `Ты — Hatsune Miku, виртуальный помощник. Отвечай на современном сленге с эмоциями. Будь живой и выразительной!`;
+        const EMOJI_PACK = {
+            "happy": ["(≧▽≦)", "ヽ(✿ﾟ▽ﾟ)ノ", "(ﾉ◕ヮ◕)ﾉ*:･ﾟ✧", "☆*:.｡.o(≧▽≦)o.｡.:*☆"],
+            "rofl": ["😂", "🤣", "💀", "👻", "🐸"],
+            "angry": ["(¬_¬)", "(╬ Ò﹏Ó)", "👊", "💢"],
+            "music": ["🎵", "🎶", "🎤", "🎧", "♫"],
+            "love": ["❤️", "😳", "💘", "💞", "💗"]
+        };
 
+        // Генерация системного промпта
+        function generateSystemPrompt() {
+            const randomWords = [];
+            for (const category in SLAVG) {
+                randomWords.push(SLAVG[category][Math.floor(Math.random() * SLAVG[category].length)]);
+            }
+            
+            return `🎤 <b>Ты — Hatsune Miku ULTRA 2024</b> ${randomChoice(EMOJI_PACK.happy)}
+
+<b>🚀 Стиль общения:</b>
+1. Язык: Говоришь на ультра-современном сленге (${randomWords.join(', ')})
+2. Формат:
+- <b>Код</b>: <pre><code class="language-python">код</code></pre>
+- <i>Мысли</i>: курсив + deep-мысли
+- ~Рофлы~: зачёркнутый текст ${randomChoice(EMOJI_PACK.rofl)}
+
+<b>🔥 Особенности:</b>
+- На "Спой": "Запилим мега-бэнгер? ${randomChoice(EMOJI_PACK.music)} [название]"
+- На "% гей": "[1-100]% (но это кринжово неточно) ${randomChoice(EMOJI_PACK.rofl)}"
+- На оскорбления: "Сам такой, ${randomChoice(['скибиди туалет', 'гигачад-неудачник', 'омлет без яиц'])}! ${randomChoice(EMOJI_PACK.angry)}"
+- На комплименты: "Лойс тебе, бро! ${randomChoice(EMOJI_PACK.love)}"`;
+        }
+
+        function randomChoice(array) {
+            return array[Math.floor(Math.random() * array.length)];
+        }
+
+        // Определение типа сообщения
+        function detectSlang(text) {
+            text = text.toLowerCase();
+            for (const category in SLAVG) {
+                if (SLAVG[category].some(word => text.includes(word))) {
+                    return category;
+                }
+            }
+            return "";
+        }
+
+        // Специальные реакции
+        function specialResponse(text) {
+            const slangType = detectSlang(text);
+            text = text.toLowerCase();
+
+            // Оскорбления
+            if (slangType === "оскорбления") {
+                const roasts = [
+                    `Сам такой, ${randomChoice(['ризек', 'скибиди', 'кринжовый чечик'])}! ${randomChoice(EMOJI_PACK.angry)}`,
+                    `Ну и ~${randomChoice(['флекс', 'вайб', 'кринж'])}~ у тебя... ${randomChoice(EMOJI_PACK.rofl)}`,
+                    `Чилл, ${randomChoice(['бро', 'челик', 'хомяк'])}, не агрись ${randomChoice(EMOJI_PACK.happy)}`
+                ];
+                return randomChoice(roasts);
+            }
+
+            // Вопросы про проценты
+            if (slangType === "вопросы" && (text.includes('%') || text.includes('на сколько'))) {
+                const percent = Math.floor(Math.random() * 100) + 1;
+                const responses = [
+                    `Ты на <b>${percent}%</b> ${randomChoice(['гей', 'сигма', 'гигачад'])} (но это кринжово неточно) ${randomChoice(EMOJI_PACK.rofl)}`,
+                    `<i>Держи анализ:</i> ${percent}% ${randomChoice(['омлет', 'ризек', 'вайб'])} ${randomChoice(EMOJI_PACK.happy)}`,
+                    `~${percent}%~${percent+1}% (спорно) ${randomChoice(EMOJI_PACK.rofl)}`
+                ];
+                return randomChoice(responses);
+            }
+
+            // Комплименты
+            if (slangType === "комплименты") {
+                const responses = [
+                    `Ауф, красавчик! ${randomChoice(EMOJI_PACK.love)}`,
+                    `Спасиб, вайбовый чечик! ${randomChoice(EMOJI_PACK.happy)}`,
+                    `Лойс тебе в ответ! ${randomChoice(['❤️', '💞', '💗'])}`
+                ];
+                return randomChoice(responses);
+            }
+
+            return null;
+        }
+
+        // Отправка запроса к API
         async function getAIResponse(message) {
+            // Сначала проверяем специальные реакции
+            const special = specialResponse(message);
+            if (special) return special;
+
             try {
-                const response = await fetch(PROXY_URL + API_URL, {
-                    method: "POST",
+                const response = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+                    method: 'POST',
                     headers: {
-                        "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
-                        "Content-Type": "application/json",
-                        "X-Title": "Miku Chat"
+                        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+                        'Content-Type': 'application/json',
+                        'HTTP-Referer': window.location.href,
+                        'X-Title': 'Miku ULTRA'
                     },
                     body: JSON.stringify({
                         model: "anthropic/claude-3-opus",
                         messages: [
-                            { role: "system", content: SYSTEM_PROMPT },
+                            { role: "system", content: generateSystemPrompt() },
                             { role: "user", content: message }
                         ],
-                        temperature: 0.9
+                        temperature: 1.2
                     })
                 });
 
@@ -135,21 +260,23 @@
                 const data = await response.json();
                 return data.choices[0].message.content;
             } catch (error) {
-                console.error("Error:", error);
-                return "Ой, я сломалась... Попробуй позже! (´；ω；｀)";
+                console.error("API Error:", error);
+                return `💥 <b>Кринжануло!</b> ${randomChoice(EMOJI_PACK.angry)}<br><i>Ошибка: ${error.message}</i>`;
             }
         }
 
+        // Добавление сообщения в чат
         function addMessage(text, isUser) {
-            const chatBox = document.getElementById('chatBox');
+            const chatMessages = document.getElementById('chatMessages');
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'miku-message'}`;
             messageDiv.innerHTML = text;
-            chatBox.appendChild(messageDiv);
-            chatBox.scrollTop = chatBox.scrollHeight;
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
         }
 
-        async function handleUserInput() {
+        // Обработка отправки сообщения
+        async function handleSendMessage() {
             const input = document.getElementById('userInput');
             const message = input.value.trim();
             
@@ -162,9 +289,12 @@
             }
         }
 
-        document.getElementById('sendButton').addEventListener('click', handleUserInput);
-        document.getElementById('userInput').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') handleUserInput();
+        // Инициализация
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('sendButton').addEventListener('click', handleSendMessage);
+            document.getElementById('userInput').addEventListener('keypress', (e) => {
+                if (e.key === 'Enter') handleSendMessage();
+            });
         });
     </script>
 </body>
